@@ -118,6 +118,15 @@ describe Rouge::Lexers::J do
           ['Keyword', '.']
       end
 
+      it 'recoginzes self-effacing references' do
+        assert_tokens_equal 'foo_:',
+          ['Name', 'foo_:']
+          assert_tokens_equal 'foo_loc__:',
+          ['Name', 'foo_loc__:']
+          assert_tokens_equal 'foo__obj_:',
+          ['Name', 'foo__obj_:']
+      end
+
       it 'validates the inflection' do
         assert_tokens_equal 'foo. bar: do.. goto_.',
           ['Error', 'foo.'], ['Text', ' '],

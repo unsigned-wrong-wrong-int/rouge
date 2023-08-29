@@ -20,6 +20,7 @@ i. i: I. j. L. L: m. M. o. p. p.. p: q: r. s: S:
 t. T. u. u: v. x: Z:
 _9: _8: _7: _6: _5: _4: _3: _2: _1: 0: 1: 2: 3:
 4: 5: 6: 7: 8: 9: _: __:
+m n u v x y ( )
 
 NB. Control words
 do. end.
@@ -42,6 +43,7 @@ NB. Names
 foo       foo_bar
 foo_loc_  foo_bar_loc_  foo_1_  foo__   NB. Explicit locatives
 foo__obj  foo_bar__obj  foo__o1__o2     NB. Object locatives
+foo_:     foo_loc__:    foo__obj_:      NB. Self-effacing references
 
 NB. Numeric constants
 0 1 _1                NB. Integers 0, 1, -1

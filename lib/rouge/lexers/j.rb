@@ -82,7 +82,9 @@ module Rouge
       end
 
       def self.control_words_id
-        @control_words_id ||= Set.new %w(for goto label)
+        @control_words_id ||= {
+          "for" => Name, "goto" => Name::Label, "label" => Name::Label,
+        }
       end
 
       state :expr do
@@ -107,18 +109,20 @@ module Rouge
         rule %r/([A-Za-z]\w*)([.:]*)/ do |m|
           if m[2] == '.'
             word, sep, id = m[1].partition '_'
-            list = if sep.empty?
-              J.control_words
+            tag = if sep.empty?
+              J.control_words.include? word
             elsif not id.empty?
-              J.control_words_id
+              J.control_words_id[word]
             end
-            if list and list.include? word
+            if tag
               token Keyword, word + sep
-              token((word == 'for' ? Name : Name::Label), id)
+              token tag, id unless id.empty?
               token Keyword, m[2]
             else
               token Error
             end
+          elsif m[2] == ':'
+            token m[1][-1] == '_' ? Name : Error
           else
             token m[2].empty? ? Name : Error
           end
