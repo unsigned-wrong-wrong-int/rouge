@@ -91,3 +91,28 @@ the right noun
 )
 the left noun
 )
+
+NB. Direct definitions
+{{)a
+  f=. {{x + y}}
+  f&u}}
+{{)*
+  *y
+:
+  x | y
+}}
+{{)nsingle line string}}
+{{)n multiple
+line}}
+string
+  }}
+}}
+3 : '{{)n}},y'
+{{3 : 0 y}}
+
+NB. Delimiters / primitives
+{{ }} {{. }}:
+{{)x}}
+{{)aNB.}}
+{{)a NB.}}
+}}

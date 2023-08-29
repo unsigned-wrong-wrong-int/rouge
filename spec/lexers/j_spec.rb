@@ -263,5 +263,61 @@ describe Rouge::Lexers::J do
           ['Punctuation', "'"]
       end
     end
+
+    describe 'direct definitions' do
+      it 'lexes delimiters {{ and }}' do
+        assert_tokens_equal '{{ }}',
+          ['Punctuation', '{{'], ['Text', ' '], ['Punctuation', '}}']
+        assert_tokens_equal '{{.',
+          ['Name.Function', '{{.']
+        assert_tokens_equal '}}:',
+          ['Operator', '}'], ['Name.Function', '}:']
+      end
+
+      it 'recognizes control information' do
+        %w'm d v a c *'.each do |c|
+          assert_tokens_equal "{{)#{c}",
+            ['Punctuation', '{{)'], ['Keyword.Pseudo', c]
+        end
+        assert_tokens_equal '{{).',
+          ['Punctuation', '{{)'], ['Error', '.']
+        assert_tokens_equal '{{)abc',
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'a'], ['Error', 'bc']
+        assert_tokens_equal '{{)a}}',
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'a'], ['Punctuation', '}}']
+        assert_tokens_equal '{{)a NB.}}',
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'a'], ['Text', ' '],
+          ['Comment.Single', 'NB.}}']
+      end
+
+      it 'recognizes nouns' do
+        assert_tokens_equal '{{)n line 1}}',
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'n'],
+          ['Literal.String.Heredoc', ' line 1'],
+          ['Punctuation', '}}']
+        assert_tokens_equal "{{)nline 1\nline 2}}\n }}\n}}",
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'n'],
+          ['Literal.String.Heredoc', "line 1\nline 2}}\n }}\n"],
+          ['Punctuation', '}}']
+        assert_tokens_equal '{{)n}}.',
+          ['Punctuation', '{{)'], ['Keyword.Pseudo', 'n'],
+          ['Punctuation', '}}'], ['Operator', '.']
+      end
+
+      it 'does not support {{ }} in a explicit definition literal' do
+        assert_tokens_equal "3 :'{{)nx}},y'",
+          ['Keyword.Pseudo', '3'], ['Text', ' '], ['Keyword.Pseudo', ':'],
+          ['Punctuation', "'{{)"], ['Name', 'nx'],
+          ['Punctuation', '}}'], ['Name.Function', ','],
+          ['Name.Builtin.Pseudo', 'y'], ['Punctuation', "'"]
+      end
+
+      it 'does not highlight explicit definitions inside {{ }}' do
+        assert_tokens_equal '{{3 :0 y}}',
+          ['Punctuation', '{{'], ['Literal.Number', '3'], ['Text', ' '],
+          ['Operator', ':'], ['Literal.Number', '0'], ['Text', ' '],
+          ['Name.Builtin.Pseudo', 'y'], ['Punctuation', '}}']
+      end
+    end
   end
 end

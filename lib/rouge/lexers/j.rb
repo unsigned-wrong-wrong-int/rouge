@@ -88,7 +88,25 @@ module Rouge
       end
 
       state :expr do
-        rule %r/\s+/, Text
+        rule %r/[ \t\r]+\n?/, Text
+
+        # https://code.jsoftware.com/wiki/Vocabulary/DirectDefinition
+        rule %r/(\{\{\))(n)(?:(.*?)(\}\}))?/ do |m|
+          groups Punctuation, Keyword::Pseudo, Str::Heredoc, Punctuation
+          push :dd_noun unless m[4]
+        end
+
+        rule %r/(\{\{\))([acdmv*])?/ do |m|
+          groups Punctuation, Keyword::Pseudo
+          push :dd_ctrl
+        end
+
+        rule %r/\{\{(?![.:])/ do |m|
+          token Punctuation
+          push :dd_expr
+        end
+
+        rule %r/\}\}(?![.:])/, Punctuation
 
         rule %r'([!-&(-/:-@\[-^`{-~]|[A-Za-z]\b)([.:]*)' do |m|
           token J.primitive(m[1], m[2])
@@ -207,6 +225,7 @@ module Rouge
       state :q_expr do
         rule %r/''/, Str::Single, :q_str
         rule %r/'|$/, Punctuation, :pop!
+        rule %r/\{\{(?![.:])/, Punctuation
         rule %r/NB\.(?![.:])([^'\n]|'')*/, Comment::Single
         mixin :expr
       end
@@ -220,12 +239,12 @@ module Rouge
 
       state :note do
         mixin :delimiter
-        rule %r/.+\n?/, Comment::Multiline
+        rule %r/.*\n/, Comment::Multiline
       end
 
       state :noun do
         mixin :delimiter
-        rule %r/.+\n?/, Str::Heredoc
+        rule %r/.*\n/, Str::Heredoc
       end
 
       state :code do
@@ -237,10 +256,38 @@ module Rouge
       end
 
       state :delimiter do
-        rule %r/^([ \t]*)(\))([ \t\r]*$\n?)/ do
+        rule %r/^([ \t]*)(\))([ \t\r]*)$/ do
           groups Text, Punctuation, Text
           pop!
         end
+      end
+
+      state :dd_noun do
+        rule %r/^\}\}/, Punctuation, :pop!
+        rule %r/.*\n/, Str::Heredoc
+      end
+
+      state :dd_ctrl do
+        rule %r/([ \t]+)(NB\.(?![.:]).*)/ do
+          groups Text, Comment::Single
+        end
+        rule %r/([ \t]*)(\}\}(?![.:]))/ do
+          groups Text, Punctuation
+          pop!
+        end
+        rule %r/.+?(?=\}\}(?![.:]))/, Error
+        rule %r/[ \t\r]*\n/ do
+          token Text
+          goto :dd_expr
+        end
+      end
+
+      state :dd_expr do
+        rule %r/\}\}(?![.:])/, Punctuation, :pop!
+        rule %r/^([ \t]*)(:)([ \t\r]*)$/ do
+          groups Text, Punctuation, Text
+        end
+        mixin :expr
       end
     end
   end
