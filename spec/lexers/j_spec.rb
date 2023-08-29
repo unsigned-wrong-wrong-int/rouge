@@ -31,9 +31,9 @@ describe Rouge::Lexers::J do
                /:          \:     [    [:     ]
           { {. {: {::   }. }:       ". ":     ? ?.
           A. C. e. E. i. i: I. j. L. o. p. p.. p: q:
-          r. s: u. u: v. x: Z:
+          r. s: T. u. u: v. x: Z:
           _9: _8: _7: _6: _5: _4: _3: _2: _1: 0: 1: 2:
-          3: 4: 5: 6: 7: 8: 9: _:
+          3: 4: 5: 6: 7: 8: 9: _: __:
         '.each do |verb|
           assert_tokens_equal verb, ['Name.Function', verb]
         end
@@ -41,29 +41,31 @@ describe Rouge::Lexers::J do
 
       it 'covers all the modifiers' do
         %w'
-               ^:     ~           . .. .:     : :. ::
-            ;.          !. !:     / /.       \\ \.
+               ^:     ~           .           : :. ::
+            ;.          !. !:     / /. /..   \\ \.
           }       }:: "           `    `:     @ @. @:
           & &. &: &.:
-          d. D. D: f. F. F.. F.: F: F:. F:: H. L: M. S:
-          t. t: T.
+          f. F. F.. F.: F: F:. F:: H. L: m. M. S: t.
         '.each do |modifier|
           assert_tokens_equal modifier, ['Operator', modifier]
         end
       end
 
       it 'recognizes the other primitives' do
+        %w'=. =: ( )'.each do |symbol|
+          assert_tokens_equal symbol, ['Punctuation', symbol]
+        end
         %w'a. a:'.each do |noun|
           assert_tokens_equal noun, ['Keyword.Constant', noun]
         end
-        %w'=. =:'.each do |copula|
-          assert_tokens_equal copula, ['Punctuation', copula]
+        %w'm n u v x y'.each do |param|
+          assert_tokens_equal param, ['Name.Builtin.Pseudo', param]
         end
       end
 
       it 'validates the inflection' do
-        assert_tokens_equal '[.q::F:.:. .::',
-          ['Error', '[.q::F:.:.'], ['Text', ' '],
+        assert_tokens_equal '[..q::F:.:. .::',
+          ['Error', '[..q::F:.:.'], ['Text', ' '],
           ['Error', '.::']
       end
     end

@@ -34,34 +34,34 @@ module Rouge
       def self.primitive_table
         @primitive_table ||= Hash.new([:name]).tap do |h|
           {
+            '!]' => [:verb, :modifier, :modifier],
+            '"~' => [:modifier, :verb, :verb],
+            '#$%*+,-<>|' => [:verb, :verb, :verb],
+            '&' => [:modifier, :modifier, :modifier, nil, :modifier],
             '()' => [:other],
+            '.' => [:modifier],
+            '/' => [:modifier, :modifier, :verb, :modifier],
+            ':@' => [:modifier, :modifier, :modifier],
+            ';[' => [:verb, :modifier, :verb],
             '=' => [:verb, :other, :other],
-            '<>+-*%$|,#' => [:verb, :verb, :verb],
+            '?' => [:verb, :verb],
+            '\\' => [:modifier, :modifier, :verb],
             '^' => [:verb, :verb, :modifier],
-            '~"' => [:modifier, :verb, :verb],
-            '.:@' => [:modifier, :modifier, :modifier],
-            ';' => [:verb, :modifier, :verb],
-            '!' => [:verb, :modifier, :modifier],
-            '/\\' => [:modifier, :modifier, :verb],
-            '[' => [:verb, nil, :verb],
-            ']' => [:verb],
+            '`' => [:modifier, nil, :modifier],
             '{' => [:verb, :verb, :verb, nil, nil, nil, :verb],
             '}' => [:modifier, :verb, :verb, nil, nil, nil, :modifier],
-            '`' => [:modifier, nil, :modifier],
-            '&' => [:modifier, :modifier, :modifier, nil, :modifier],
-            '?' => [:verb, :verb],
             'a' => [:name, :noun, :noun],
-            'ACeEIjorv' => [:name, :verb],
-            'bdfHMT' => [:name, :modifier],
-            'Dt' => [:name, :modifier, :modifier],
+            'ACEITejor' => [:name, :verb],
             'F' => [:name, :modifier, :modifier, :modifier, :modifier,
                     :modifier, :modifier],
-            'iu' => [:name, :verb, :verb],
+            'HMbft' => [:name, :modifier],
             'L' => [:name, :verb, :modifier],
-            'mny' => [:param],
-            'p' => [:name, :verb, :verb, :verb],
-            'qsZ' => [:name, nil, :verb],
             'S' => [:name, nil, :modifier],
+            'Zqs' => [:name, nil, :verb],
+            'i' => [:name, :verb, :verb],
+            'm' => [:param, :modifier],
+            'ny' => [:param],
+            'p' => [:name, :verb, :verb, :verb],
             'u' => [:param, :verb, :verb],
             'v' => [:param, :verb],
             'x' => [:param, nil, :verb],
@@ -92,7 +92,7 @@ module Rouge
           token J.primitive(m[1], m[2])
         end
 
-        rule %r/(?:\d|_\d?):([.:]*)/ do |m|
+        rule %r/_?[\d_]:([.:]*)/ do |m|
           token m[1].empty? ? J.token_map[:verb] : Error
         end
 
@@ -168,7 +168,6 @@ module Rouge
           @note_next = true
         end
 
-        rule %r/[mnuvxy]\b(?![.:])/, Name
         mixin :expr
       end
 
